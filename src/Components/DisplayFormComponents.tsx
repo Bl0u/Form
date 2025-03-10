@@ -26,6 +26,7 @@ function DisplayFormComponents() {
   const [sections, setSections] = useState<Section[]>([]);
   const [currentSection, setCurrentSection] = useState<string | null>(null);
   const [isPreview, setIsPreview] = useState(false);
+  const [generatedUrl, setGeneratedUrl] = useState<string | null>(null);
 
   const handleAiRequest = async (message: string) => {
     try {
@@ -179,6 +180,51 @@ function DisplayFormComponents() {
     );
   };
 
+  const handleRemoveOption = (sectionId: string, fieldId: string, optionIndex: number) => {
+    setSections(prevSections =>
+      prevSections.map(section =>
+        section.id === sectionId
+          ? {
+              ...section,
+              fields: section.fields.map(field =>
+                field.id === fieldId
+                  ? {
+                      ...field,
+                      options: field.options?.filter((_, index) => index !== optionIndex) || []
+                    }
+                  : field
+              )
+            }
+          : section
+      )
+    );
+  };
+
+  const handleRemoveField = (sectionId: string, fieldId: string) => {
+    setSections(prevSections =>
+      prevSections.map(section =>
+        section.id === sectionId
+          ? {
+              ...section,
+              fields: section.fields.filter(field => field.id !== fieldId)
+            }
+          : section
+      )
+    );
+  };
+
+  const handleGenerateUrl = () => {
+    const formData = JSON.stringify(sections);
+    const encodedData = encodeURIComponent(formData);
+    const url = `${window.location.origin}/form?data=${encodedData}`;
+    setGeneratedUrl(url);
+  };
+
+  const handleCopyUrl = () => {
+    navigator.clipboard.writeText(generatedUrl || '');
+    setGeneratedUrl(null);
+  };
+
   const renderPreviewField = (field: Field) => {
     switch (field.type) {
       case 'textarea':
@@ -255,7 +301,59 @@ function DisplayFormComponents() {
         >
           {isPreview ? 'Edit Form' : 'Preview Form'}
         </button>
+        {!isPreview && (
+          <button 
+            onClick={handleGenerateUrl}
+            style={{ 
+              padding: '8px 16px', 
+              backgroundColor: '#2196F3',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Create URL
+          </button>
+        )}
       </div>
+      {generatedUrl && (
+        <div style={{ 
+          marginBottom: '15px', 
+          padding: '10px', 
+          backgroundColor: '#f5f5f5', 
+          borderRadius: '4px',
+          wordBreak: 'break-all'
+        }}>
+          <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Shareable URL:</div>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <input 
+              type="text" 
+              value={generatedUrl} 
+              readOnly 
+              style={{ 
+                flex: 1, 
+                padding: '8px', 
+                border: '1px solid #ddd', 
+                borderRadius: '4px' 
+              }}
+            />
+            <button 
+              onClick={handleCopyUrl}
+              style={{ 
+                padding: '8px 16px', 
+                backgroundColor: '#666',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              Copy
+            </button>
+          </div>
+        </div>
+      )}
       <div style={{ overflowY: 'auto', height: '500px', padding: '10px' }}>
         {sections.map(section => (
           <div key={section.id} style={{ marginBottom: '30px' }}>
@@ -266,19 +364,116 @@ function DisplayFormComponents() {
               section.fields.map(field => {
                 switch (field.type) {
                   case 'textarea':
-                    return <TxtAreaLabelFieldComponent key={field.id} id={field.id} question={field.question} value={field.value} onQuestionChange={(id, val) => handleFieldChange(section.id, id, 'question', val)} onValueChange={(id, val) => handleFieldChange(section.id, id, 'value', val)} />;
+                    return (
+                      <div key={field.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
+                        <div style={{ flex: 1 }}>
+                          <TxtAreaLabelFieldComponent id={field.id} question={field.question} value={field.value} onQuestionChange={(id, val) => handleFieldChange(section.id, id, 'question', val)} onValueChange={(id, val) => handleFieldChange(section.id, id, 'value', val)} />
+                        </div>
+                        <button 
+                          onClick={() => handleRemoveField(section.id, field.id)}
+                          style={{ 
+                            padding: '4px 8px',
+                            backgroundColor: '#ff4444',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    );
                   case 'checkbox':
                     return (
-                      <div key={field.id}>
-                        <CheckBoxFieldLabel id={field.id} question={field.question} options={field.options || []} onQuestionChange={(id, val) => handleFieldChange(section.id, id, 'question', val)} onOptionsChange={(id, val) => handleFieldChange(section.id, id, 'options', val)} />
-                        <button onClick={() => handleAddOption(section.id, field.id)} style={{ marginLeft: '10px' }}>Add Option</button>
+                      <div key={field.id} style={{ width: '100%' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
+                          <div style={{ flex: 1 }}>
+                            <CheckBoxFieldLabel id={field.id} question={field.question} options={field.options || []} onQuestionChange={(id, val) => handleFieldChange(section.id, id, 'question', val)} onOptionsChange={(id, val) => handleFieldChange(section.id, id, 'options', val)} />
+                          </div>
+                          <button 
+                            onClick={() => handleRemoveField(section.id, field.id)}
+                            style={{ 
+                              padding: '4px 8px',
+                              backgroundColor: '#ff4444',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '4px',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                        <div style={{ marginLeft: '20px', marginTop: '10px' }}>
+                          {field.options?.map((option, index) => (
+                            <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '5px' }}>
+                              <input type="checkbox" checked={field.value === option} onChange={() => handleFieldChange(section.id, field.id, 'value', option)} />
+                              <span>{option}</span>
+                              <button 
+                                onClick={() => handleRemoveOption(section.id, field.id, index)}
+                                style={{ 
+                                  padding: '2px 6px',
+                                  backgroundColor: '#ff4444',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                  marginLeft: 'auto'
+                                }}
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                        <button onClick={() => handleAddOption(section.id, field.id)} style={{ marginLeft: '20px', marginTop: '10px' }}>Add Option</button>
                       </div>
                     );
                   case 'radio':
                     return (
-                      <div key={field.id}>
-                        <RadioFieldLabel id={field.id} question={field.question} options={field.options || []} onQuestionChange={(id, val) => handleFieldChange(section.id, id, 'question', val)} onOptionsChange={(id, val) => handleFieldChange(section.id, id, 'options', val)} />
-                        <button onClick={() => handleAddOption(section.id, field.id)} style={{ marginLeft: '10px' }}>Add Option</button>
+                      <div key={field.id} style={{ width: '100%' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
+                          <div style={{ flex: 1 }}>
+                            <RadioFieldLabel id={field.id} question={field.question} options={field.options || []} onQuestionChange={(id, val) => handleFieldChange(section.id, id, 'question', val)} onOptionsChange={(id, val) => handleFieldChange(section.id, id, 'options', val)} />
+                          </div>
+                          <button 
+                            onClick={() => handleRemoveField(section.id, field.id)}
+                            style={{ 
+                              padding: '4px 8px',
+                              backgroundColor: '#ff4444',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '4px',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                        <div style={{ marginLeft: '20px', marginTop: '10px' }}>
+                          {field.options?.map((option, index) => (
+                            <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '5px' }}>
+                              <input type="radio" name={field.id} checked={field.value === option} onChange={() => handleFieldChange(section.id, field.id, 'value', option)} />
+                              <span>{option}</span>
+                              <button 
+                                onClick={() => handleRemoveOption(section.id, field.id, index)}
+                                style={{ 
+                                  padding: '2px 6px',
+                                  backgroundColor: '#ff4444',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                  marginLeft: 'auto'
+                                }}
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                        <button onClick={() => handleAddOption(section.id, field.id)} style={{ marginLeft: '20px', marginTop: '10px' }}>Add Option</button>
                       </div>
                     );
                   default:
