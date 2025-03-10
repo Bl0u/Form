@@ -1,19 +1,26 @@
 import React from 'react';
 
-interface Props {
+export interface Props {
   id: string;
-  label: string;
+  question: string;
   value: string;
-  onChange: (id: string, newValue: string) => void;
+  onQuestionChange: (id: string, newQuestion: string) => void;
+  onValueChange: (id: string, newValue: string) => void;
 }
 
-function TxtAreaLabelFieldComponent({ id, label, value, onChange }: Props) {
+function TxtAreaLabelFieldComponent({ id, question, value, onQuestionChange, onValueChange }: Props) {
   return (
     <div style={{ marginBottom: '10px' }}>
-      <label>{label}</label><br />
+      <input
+        type="text"
+        value={question}
+        onChange={(e) => onQuestionChange(id, e.target.value)}
+        placeholder="Enter question"
+        style={{ width: '100%', marginBottom: '5px' }}
+      />
       <textarea
         value={value}
-        onChange={(e) => onChange(id, e.target.value)}
+        onChange={(e) => onValueChange(id, e.target.value)}
       />
     </div>
   );
