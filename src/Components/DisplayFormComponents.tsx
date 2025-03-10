@@ -8,6 +8,12 @@ import CheckBoxFieldLabel from './CheckBoxFieldLabel';
 import RadioFieldLabel from './RadioFieldLabel';
 import AskAi from './AskAi';
 
+interface FormMetadata {
+  logo: string;
+  name: string;
+  field: string;
+}
+
 interface Field {
   id: string;
   type: 'textarea' | 'radio' | 'checkbox';
@@ -27,6 +33,12 @@ function DisplayFormComponents() {
   const [currentSection, setCurrentSection] = useState<string | null>(null);
   const [isPreview, setIsPreview] = useState(false);
   const [generatedUrl, setGeneratedUrl] = useState<string | null>(null);
+  const [showMetadataModal, setShowMetadataModal] = useState(false);
+  const [formMetadata, setFormMetadata] = useState<FormMetadata>({
+    logo: '',
+    name: '',
+    field: ''
+  });
 
   const handleAiRequest = async (message: string) => {
     try {
@@ -214,10 +226,18 @@ function DisplayFormComponents() {
   };
 
   const handleGenerateUrl = () => {
-    const formData = JSON.stringify(sections);
+    setShowMetadataModal(true);
+  };
+
+  const handleMetadataSubmit = () => {
+    const formData = JSON.stringify({
+      metadata: formMetadata,
+      sections: sections
+    });
     const encodedData = encodeURIComponent(formData);
     const url = `${window.location.origin}/form?data=${encodedData}`;
     setGeneratedUrl(url);
+    setShowMetadataModal(false);
   };
 
   const handleCopyUrl = () => {
@@ -458,6 +478,137 @@ function DisplayFormComponents() {
           </div>
         ))}
       </div>
+      {showMetadataModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '20px',
+            borderRadius: '8px',
+            width: '400px',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+          }}>
+            <h2 style={{ 
+              marginBottom: '20px',
+              color: '#333',
+              fontSize: '24px'
+            }}>Form Details</h2>
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ 
+                display: 'block', 
+                marginBottom: '5px',
+                color: '#555',
+                fontWeight: '500'
+              }}>Company Logo URL:</label>
+              <input
+                type="text"
+                value={formMetadata.logo}
+                onChange={(e) => setFormMetadata({ ...formMetadata, logo: e.target.value })}
+                style={{ 
+                  width: '100%', 
+                  padding: '8px',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  color: '#333',
+                  backgroundColor: '#ffffff',
+                  fontSize: '14px'
+                }}
+                placeholder="Enter logo URL"
+              />
+            </div>
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ 
+                display: 'block', 
+                marginBottom: '5px',
+                color: '#555',
+                fontWeight: '500'
+              }}>Form Name:</label>
+              <input
+                type="text"
+                value={formMetadata.name}
+                onChange={(e) => setFormMetadata({ ...formMetadata, name: e.target.value })}
+                style={{ 
+                  width: '100%', 
+                  padding: '8px',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  color: '#333',
+                  backgroundColor: '#ffffff',
+                  fontSize: '14px'
+                }}
+                placeholder="Enter form name"
+              />
+            </div>
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ 
+                display: 'block', 
+                marginBottom: '5px',
+                color: '#555',
+                fontWeight: '500'
+              }}>Form Field:</label>
+              <input
+                type="text"
+                value={formMetadata.field}
+                onChange={(e) => setFormMetadata({ ...formMetadata, field: e.target.value })}
+                style={{ 
+                  width: '100%', 
+                  padding: '8px',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  color: '#333',
+                  backgroundColor: '#ffffff',
+                  fontSize: '14px'
+                }}
+                placeholder="Enter form field (e.g., healthcare, education)"
+              />
+            </div>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setShowMetadataModal(false)}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#666',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.3s'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#555'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#666'}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleMetadataSubmit}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#4CAF50',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.3s'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#45a049'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4CAF50'}
+              >
+                Generate URL
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
