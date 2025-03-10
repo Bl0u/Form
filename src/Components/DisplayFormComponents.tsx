@@ -240,35 +240,64 @@ function DisplayFormComponents() {
         );
       case 'checkbox':
         return (
-          <div key={field.id} style={{ marginBottom: '15px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>{field.question}</label>
-            {field.options?.map((option, index) => (
-              <label key={index} style={{ display: 'block', marginLeft: '20px' }}>
-                <input 
-                  type="checkbox" 
-                  checked={field.value === option}
-                  onChange={(e) => handleFieldChange(sections[0].id, field.id, 'value', option)}
+          <div key={field.id} style={{ width: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
+              <div style={{ flex: 1 }}>
+                <CheckBoxFieldLabel 
+                  id={field.id} 
+                  question={field.question} 
+                  options={field.options || []} 
+                  onQuestionChange={(id, val) => handleFieldChange(sections[0].id, id, 'question', val)} 
+                  onOptionsChange={(id, val) => handleFieldChange(sections[0].id, id, 'options', val)}
+                  onRemoveOption={(id, index) => handleRemoveOption(sections[0].id, id, index)}
                 />
-                {option}
-              </label>
-            ))}
+              </div>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <button 
+                  className="button-success"
+                  onClick={() => handleAddOption(sections[0].id, field.id)}
+                >
+                  Add Option
+                </button>
+                <button 
+                  className="button-danger"
+                  onClick={() => handleRemoveField(sections[0].id, field.id)}
+                >
+                  Remove Question
+                </button>
+              </div>
+            </div>
           </div>
         );
       case 'radio':
         return (
-          <div key={field.id} style={{ marginBottom: '15px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>{field.question}</label>
-            {field.options?.map((option, index) => (
-              <label key={index} style={{ display: 'block', marginLeft: '20px' }}>
-                <input 
-                  type="radio" 
-                  name={field.id}
-                  checked={field.value === option}
-                  onChange={(e) => handleFieldChange(sections[0].id, field.id, 'value', option)}
+          <div key={field.id} style={{ width: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
+              <div style={{ flex: 1 }}>
+                <RadioFieldLabel 
+                  id={field.id} 
+                  question={field.question} 
+                  options={field.options || []} 
+                  onQuestionChange={(id, val) => handleFieldChange(sections[0].id, id, 'question', val)} 
+                  onOptionsChange={(id, val) => handleFieldChange(sections[0].id, id, 'options', val)}
+                  onRemoveOption={(id, index) => handleRemoveOption(sections[0].id, id, index)}
                 />
-                {option}
-              </label>
-            ))}
+              </div>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <button 
+                  className="button-success"
+                  onClick={() => handleAddOption(sections[0].id, field.id)}
+                >
+                  Add Option
+                </button>
+                <button 
+                  className="button-danger"
+                  onClick={() => handleRemoveField(sections[0].id, field.id)}
+                >
+                  Remove Question
+                </button>
+              </div>
+            </div>
           </div>
         );
       default:
@@ -389,45 +418,30 @@ function DisplayFormComponents() {
                       <div key={field.id} style={{ width: '100%' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
                           <div style={{ flex: 1 }}>
-                            <CheckBoxFieldLabel id={field.id} question={field.question} options={field.options || []} onQuestionChange={(id, val) => handleFieldChange(section.id, id, 'question', val)} onOptionsChange={(id, val) => handleFieldChange(section.id, id, 'options', val)} />
+                            <CheckBoxFieldLabel 
+                              id={field.id} 
+                              question={field.question} 
+                              options={field.options || []} 
+                              onQuestionChange={(id, val) => handleFieldChange(section.id, id, 'question', val)} 
+                              onOptionsChange={(id, val) => handleFieldChange(section.id, id, 'options', val)}
+                              onRemoveOption={(id, index) => handleRemoveOption(section.id, id, index)}
+                            />
                           </div>
-                          <button 
-                            onClick={() => handleRemoveField(section.id, field.id)}
-                            style={{ 
-                              padding: '4px 8px',
-                              backgroundColor: '#ff4444',
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: '4px',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            Remove
-                          </button>
+                          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                            <button 
+                              className="button-success"
+                              onClick={() => handleAddOption(section.id, field.id)}
+                            >
+                              Add Option
+                            </button>
+                            <button 
+                              className="button-danger"
+                              onClick={() => handleRemoveField(section.id, field.id)}
+                            >
+                              Remove Question
+                            </button>
+                          </div>
                         </div>
-                        <div style={{ marginLeft: '20px', marginTop: '10px' }}>
-                          {field.options?.map((option, index) => (
-                            <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '5px' }}>
-                              <input type="checkbox" checked={field.value === option} onChange={() => handleFieldChange(section.id, field.id, 'value', option)} />
-                              <span>{option}</span>
-                              <button 
-                                onClick={() => handleRemoveOption(section.id, field.id, index)}
-                                style={{ 
-                                  padding: '2px 6px',
-                                  backgroundColor: '#ff4444',
-                                  color: 'white',
-                                  border: 'none',
-                                  borderRadius: '4px',
-                                  cursor: 'pointer',
-                                  marginLeft: 'auto'
-                                }}
-                              >
-                                ×
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                        <button onClick={() => handleAddOption(section.id, field.id)} style={{ marginLeft: '20px', marginTop: '10px' }}>Add Option</button>
                       </div>
                     );
                   case 'radio':
@@ -435,45 +449,30 @@ function DisplayFormComponents() {
                       <div key={field.id} style={{ width: '100%' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
                           <div style={{ flex: 1 }}>
-                            <RadioFieldLabel id={field.id} question={field.question} options={field.options || []} onQuestionChange={(id, val) => handleFieldChange(section.id, id, 'question', val)} onOptionsChange={(id, val) => handleFieldChange(section.id, id, 'options', val)} />
+                            <RadioFieldLabel 
+                              id={field.id} 
+                              question={field.question} 
+                              options={field.options || []} 
+                              onQuestionChange={(id, val) => handleFieldChange(section.id, id, 'question', val)} 
+                              onOptionsChange={(id, val) => handleFieldChange(section.id, id, 'options', val)}
+                              onRemoveOption={(id, index) => handleRemoveOption(section.id, id, index)}
+                            />
                           </div>
-                          <button 
-                            onClick={() => handleRemoveField(section.id, field.id)}
-                            style={{ 
-                              padding: '4px 8px',
-                              backgroundColor: '#ff4444',
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: '4px',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            Remove
-                          </button>
+                          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                            <button 
+                              className="button-success"
+                              onClick={() => handleAddOption(section.id, field.id)}
+                            >
+                              Add Option
+                            </button>
+                            <button 
+                              className="button-danger"
+                              onClick={() => handleRemoveField(section.id, field.id)}
+                            >
+                              Remove Question
+                            </button>
+                          </div>
                         </div>
-                        <div style={{ marginLeft: '20px', marginTop: '10px' }}>
-                          {field.options?.map((option, index) => (
-                            <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '5px' }}>
-                              <input type="radio" name={field.id} checked={field.value === option} onChange={() => handleFieldChange(section.id, field.id, 'value', option)} />
-                              <span>{option}</span>
-                              <button 
-                                onClick={() => handleRemoveOption(section.id, field.id, index)}
-                                style={{ 
-                                  padding: '2px 6px',
-                                  backgroundColor: '#ff4444',
-                                  color: 'white',
-                                  border: 'none',
-                                  borderRadius: '4px',
-                                  cursor: 'pointer',
-                                  marginLeft: 'auto'
-                                }}
-                              >
-                                ×
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                        <button onClick={() => handleAddOption(section.id, field.id)} style={{ marginLeft: '20px', marginTop: '10px' }}>Add Option</button>
                       </div>
                     );
                   default:
