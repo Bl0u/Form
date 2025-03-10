@@ -158,6 +158,26 @@ function DisplayFormComponents() {
     );
   };
 
+  const handleAddOption = (sectionId: string, fieldId: string) => {
+    setSections(prevSections =>
+      prevSections.map(section =>
+        section.id === sectionId
+          ? {
+              ...section,
+              fields: section.fields.map(field =>
+                field.id === fieldId
+                  ? {
+                      ...field,
+                      options: [...(field.options || []), `Option ${(field.options?.length || 0) + 1}`]
+                    }
+                  : field
+              )
+            }
+          : section
+      )
+    );
+  };
+
   return (
     <div style={{ padding: '10px' }}>
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginBottom: '15px' }}>
@@ -176,9 +196,19 @@ function DisplayFormComponents() {
                 case 'textarea':
                   return <TxtAreaLabelFieldComponent key={field.id} id={field.id} question={field.question} value={field.value} onQuestionChange={(id, val) => handleFieldChange(section.id, id, 'question', val)} onValueChange={(id, val) => handleFieldChange(section.id, id, 'value', val)} />;
                 case 'checkbox':
-                  return <CheckBoxFieldLabel key={field.id} id={field.id} question={field.question} options={field.options || []} onQuestionChange={(id, val) => handleFieldChange(section.id, id, 'question', val)} onOptionsChange={(id, val) => handleFieldChange(section.id, id, 'options', val)} />;
+                  return (
+                    <div key={field.id}>
+                      <CheckBoxFieldLabel id={field.id} question={field.question} options={field.options || []} onQuestionChange={(id, val) => handleFieldChange(section.id, id, 'question', val)} onOptionsChange={(id, val) => handleFieldChange(section.id, id, 'options', val)} />
+                      <button onClick={() => handleAddOption(section.id, field.id)} style={{ marginLeft: '10px' }}>Add Option</button>
+                    </div>
+                  );
                 case 'radio':
-                  return <RadioFieldLabel key={field.id} id={field.id} question={field.question} options={field.options || []} onQuestionChange={(id, val) => handleFieldChange(section.id, id, 'question', val)} onOptionsChange={(id, val) => handleFieldChange(section.id, id, 'options', val)} />;
+                  return (
+                    <div key={field.id}>
+                      <RadioFieldLabel id={field.id} question={field.question} options={field.options || []} onQuestionChange={(id, val) => handleFieldChange(section.id, id, 'question', val)} onOptionsChange={(id, val) => handleFieldChange(section.id, id, 'options', val)} />
+                      <button onClick={() => handleAddOption(section.id, field.id)} style={{ marginLeft: '10px' }}>Add Option</button>
+                    </div>
+                  );
                 default:
                   return null;
               }
