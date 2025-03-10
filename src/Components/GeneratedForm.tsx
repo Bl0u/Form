@@ -96,54 +96,62 @@ function GeneratedForm() {
   return (
     <div style={{
       minHeight: '100vh',
+      width: '100vw',
       ...backgroundStyle,
       padding: '20px',
-      transition: 'background 0.3s ease'
+      transition: 'background 0.3s ease',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'flex-start'
     }}>
       <div style={{
-        maxWidth: '800px',
-        margin: '0 auto',
+        width: '100%',
+        maxWidth: '1200px',
+        margin: '20px auto',
         backgroundColor: 'white',
-        padding: '30px',
-        borderRadius: '8px',
-        boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+        padding: '40px',
+        borderRadius: '12px',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
         backdropFilter: 'blur(10px)',
         border: '1px solid rgba(255,255,255,0.2)'
       }}>
         {formData.metadata.logo && (
-          <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
             <img 
               src={formData.metadata.logo} 
               alt="Company Logo" 
               style={{ 
-                maxHeight: '150px', 
-                maxWidth: '300px',
-                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))',
+                maxHeight: '200px', 
+                maxWidth: '400px',
+                filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.1))',
                 margin: '0 auto'
               }}
             />
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} style={{ width: '100%' }}>
           {formData.sections.map(section => (
-            <div key={section.id} style={{ marginBottom: '30px' }}>
+            <div key={section.id} style={{ marginBottom: '40px' }}>
               <h2 style={{ 
-                marginBottom: '20px',
-                color: '#444',
+                marginBottom: '25px',
+                color: '#333',
                 borderBottom: '2px solid #eee',
-                paddingBottom: '10px'
+                paddingBottom: '15px',
+                fontSize: '24px',
+                fontWeight: '600'
               }}>
                 {section.title}
               </h2>
               
               {section.fields.map(field => (
-                <div key={field.id} style={{ marginBottom: '20px' }}>
+                <div key={field.id} style={{ marginBottom: '25px' }}>
                   <label style={{ 
                     display: 'block', 
-                    marginBottom: '8px',
-                    fontWeight: 'bold',
-                    color: '#555'
+                    marginBottom: '10px',
+                    fontWeight: '600',
+                    color: '#333',
+                    fontSize: '16px'
                   }}>
                     {field.question}
                   </label>
@@ -154,11 +162,12 @@ function GeneratedForm() {
                       onChange={(e) => handleFieldChange(field.id, e.target.value)}
                       style={{
                         width: '100%',
-                        minHeight: '100px',
-                        padding: '10px',
+                        minHeight: '120px',
+                        padding: '12px',
                         border: '1px solid #ddd',
-                        borderRadius: '4px',
-                        fontSize: '16px'
+                        borderRadius: '6px',
+                        fontSize: '16px',
+                        resize: 'vertical'
                       }}
                     />
                   )}
@@ -166,16 +175,16 @@ function GeneratedForm() {
                   {field.type === 'radio' && (
                     <div style={{ marginLeft: '20px' }}>
                       {field.options?.map((option, index) => (
-                        <div key={index} style={{ marginBottom: '8px' }}>
+                        <div key={index} style={{ marginBottom: '12px' }}>
                           <input
                             type="radio"
                             name={field.id}
                             value={option}
                             checked={formValues[field.id] === option}
                             onChange={(e) => handleFieldChange(field.id, e.target.value)}
-                            style={{ marginRight: '8px' }}
+                            style={{ marginRight: '10px' }}
                           />
-                          <label style={{ color: '#000' }}>{option}</label>
+                          <label style={{ color: '#000', fontSize: '16px' }}>{option}</label>
                         </div>
                       ))}
                     </div>
@@ -184,14 +193,14 @@ function GeneratedForm() {
                   {field.type === 'checkbox' && (
                     <div style={{ marginLeft: '20px' }}>
                       {field.options?.map((option, index) => (
-                        <div key={index} style={{ marginBottom: '8px' }}>
+                        <div key={index} style={{ marginBottom: '12px' }}>
                           <input
                             type="checkbox"
                             checked={formValues[field.id] === option}
                             onChange={(e) => handleFieldChange(field.id, e.target.value)}
-                            style={{ marginRight: '8px' }}
+                            style={{ marginRight: '10px' }}
                           />
-                          <label style={{ color: '#000' }}>{option}</label>
+                          <label style={{ color: '#000', fontSize: '16px' }}>{option}</label>
                         </div>
                       ))}
                     </div>
@@ -201,21 +210,31 @@ function GeneratedForm() {
             </div>
           ))}
 
-          <div style={{ textAlign: 'center', marginTop: '30px' }}>
+          <div style={{ textAlign: 'center', marginTop: '40px' }}>
             <button
               type="submit"
               style={{
-                padding: '12px 30px',
+                padding: '15px 40px',
                 backgroundColor: '#4CAF50',
                 color: 'white',
                 border: 'none',
-                borderRadius: '4px',
-                fontSize: '16px',
+                borderRadius: '6px',
+                fontSize: '18px',
+                fontWeight: '600',
                 cursor: 'pointer',
-                transition: 'background-color 0.3s'
+                transition: 'all 0.3s ease',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
               }}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#45a049'}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4CAF50'}
+              onMouseOver={(e) => {
+                e.currentTarget.style.backgroundColor = '#45a049';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.backgroundColor = '#4CAF50';
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+              }}
             >
               Submit Form
             </button>

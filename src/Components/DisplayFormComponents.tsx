@@ -301,314 +301,372 @@ function DisplayFormComponents() {
   };
 
   return (
-    <div style={{ padding: '10px' }}>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginBottom: '15px' }}>
-        {!isPreview && (
-          <>
-            <TxtArea handleClick={() => handleAddField('textarea')} />
-            <RadioArea handleClick={() => handleAddField('radio')} />
-            <Checkbox handleClick={() => handleAddField('checkbox')} />
-            <CategorizationBtn handleClick={handleStartSection} handleEnd={() => setCurrentSection(null)} isCategorizing={!!currentSection} />
-            <AskAi onRequest={handleAiRequest} />
-          </>
-        )}
-        <button 
-          onClick={() => setIsPreview(!isPreview)}
-          style={{ 
-            padding: '8px 16px', 
-            backgroundColor: isPreview ? '#ff4444' : '#4CAF50',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
-        >
-          {isPreview ? 'Edit Form' : 'Preview Form'}
-        </button>
-        {!isPreview && (
+    <div style={{
+      minHeight: '100vh',
+      width: '100vw',
+      background: 'linear-gradient(-45deg, #2193b0, #6dd5ed, #2193b0, #6dd5ed)',
+      backgroundSize: '400% 400%',
+      animation: 'gradient 15s ease infinite',
+      padding: '20px',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'flex-start'
+    }}>
+      <div style={{
+        width: '100%',
+        maxWidth: '1200px',
+        margin: '20px auto',
+        backgroundColor: 'white',
+        padding: '40px',
+        borderRadius: '12px',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+        backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(255,255,255,0.2)'
+      }}>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'flex-end', 
+          gap: '10px', 
+          marginBottom: '25px' 
+        }}>
+          {!isPreview && (
+            <>
+              <TxtArea handleClick={() => handleAddField('textarea')} />
+              <RadioArea handleClick={() => handleAddField('radio')} />
+              <Checkbox handleClick={() => handleAddField('checkbox')} />
+              <CategorizationBtn handleClick={handleStartSection} handleEnd={() => setCurrentSection(null)} isCategorizing={!!currentSection} />
+              <AskAi onRequest={handleAiRequest} />
+            </>
+          )}
           <button 
-            onClick={handleGenerateUrl}
+            onClick={() => setIsPreview(!isPreview)}
             style={{ 
-              padding: '8px 16px', 
-              backgroundColor: '#2196F3',
+              padding: '12px 24px', 
+              backgroundColor: isPreview ? '#ff4444' : '#4CAF50',
               color: 'white',
               border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
+              borderRadius: '6px',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
             }}
           >
-            Create URL
+            {isPreview ? 'Edit Form' : 'Preview Form'}
           </button>
-        )}
-      </div>
-      {generatedUrl && (
-        <div style={{ 
-          marginBottom: '15px', 
-          padding: '10px', 
-          backgroundColor: '#f5f5f5', 
-          borderRadius: '4px',
-          wordBreak: 'break-all'
-        }}>
-          <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Shareable URL:</div>
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            <input 
-              type="text" 
-              value={generatedUrl} 
-              readOnly 
-              style={{ 
-                flex: 1, 
-                padding: '8px', 
-                border: '1px solid #ddd', 
-                borderRadius: '4px' 
-              }}
-            />
+          {!isPreview && (
             <button 
-              onClick={handleCopyUrl}
+              onClick={handleGenerateUrl}
               style={{ 
-                padding: '8px 16px', 
-                backgroundColor: '#666',
+                padding: '12px 24px', 
+                backgroundColor: '#2196F3',
                 color: 'white',
                 border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
+                borderRadius: '6px',
+                fontSize: '16px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
               }}
             >
-              Copy
+              Create URL
             </button>
-          </div>
+          )}
         </div>
-      )}
-      <div style={{ overflowY: 'auto', height: '500px', padding: '10px' }}>
-        {sections.map(section => (
-          <div key={section.id} style={{ marginBottom: '30px' }}>
-            <h2>{section.title}</h2>
-            {isPreview ? (
-              section.fields.map(field => renderPreviewField(field))
-            ) : (
-              section.fields.map(field => {
-                switch (field.type) {
-                  case 'textarea':
-                    return (
-                      <div key={field.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
-                        <div style={{ flex: 1 }}>
-                          <TxtAreaLabelFieldComponent id={field.id} question={field.question} value={field.value} onQuestionChange={(id, val) => handleFieldChange(section.id, id, 'question', val)} onValueChange={(id, val) => handleFieldChange(section.id, id, 'value', val)} />
-                        </div>
-                        <button 
-                          onClick={() => handleRemoveField(section.id, field.id)}
-                          style={{ 
-                            padding: '4px 8px',
-                            backgroundColor: '#ff4444',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    );
-                  case 'checkbox':
-                    return (
-                      <div key={field.id} style={{ width: '100%' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
-                          <div style={{ flex: 1 }}>
-                            <CheckBoxFieldLabel 
-                              id={field.id} 
-                              question={field.question} 
-                              options={field.options || []} 
-                              onQuestionChange={(id, val) => handleFieldChange(section.id, id, 'question', val)} 
-                              onOptionsChange={(id, val) => handleFieldChange(section.id, id, 'options', val)}
-                              onRemoveOption={(id, index) => handleRemoveOption(section.id, id, index)}
-                            />
-                          </div>
-                          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                            <button 
-                              className="button-success"
-                              onClick={() => handleAddOption(section.id, field.id)}
-                            >
-                              Add Option
-                            </button>
-                            <button 
-                              className="button-danger"
-                              onClick={() => handleRemoveField(section.id, field.id)}
-                            >
-                              Remove Question
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  case 'radio':
-                    return (
-                      <div key={field.id} style={{ width: '100%' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
-                          <div style={{ flex: 1 }}>
-                            <RadioFieldLabel 
-                              id={field.id} 
-                              question={field.question} 
-                              options={field.options || []} 
-                              onQuestionChange={(id, val) => handleFieldChange(section.id, id, 'question', val)} 
-                              onOptionsChange={(id, val) => handleFieldChange(section.id, id, 'options', val)}
-                              onRemoveOption={(id, index) => handleRemoveOption(section.id, id, index)}
-                            />
-                          </div>
-                          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                            <button 
-                              className="button-success"
-                              onClick={() => handleAddOption(section.id, field.id)}
-                            >
-                              Add Option
-                            </button>
-                            <button 
-                              className="button-danger"
-                              onClick={() => handleRemoveField(section.id, field.id)}
-                            >
-                              Remove Question
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  default:
-                    return null;
-                }
-              })
-            )}
-          </div>
-        ))}
-      </div>
-      {showMetadataModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 1000
-        }}>
-          <div style={{
-            backgroundColor: 'white',
-            padding: '20px',
-            borderRadius: '8px',
-            width: '400px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+        {generatedUrl && (
+          <div style={{ 
+            marginBottom: '15px', 
+            padding: '10px', 
+            backgroundColor: '#f5f5f5', 
+            borderRadius: '4px',
+            wordBreak: 'break-all'
           }}>
-            <h2 style={{ 
-              marginBottom: '20px',
-              color: '#333',
-              fontSize: '24px'
-            }}>Form Details</h2>
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: '5px',
-                color: '#555',
-                fontWeight: '500'
-              }}>Company Logo URL:</label>
-              <input
-                type="text"
-                value={formMetadata.logo}
-                onChange={(e) => setFormMetadata({ ...formMetadata, logo: e.target.value })}
+            <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Shareable URL:</div>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <input 
+                type="text" 
+                value={generatedUrl} 
+                readOnly 
                 style={{ 
-                  width: '100%', 
-                  padding: '8px',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                  color: '#333',
-                  backgroundColor: '#ffffff',
-                  fontSize: '14px'
+                  flex: 1, 
+                  padding: '8px', 
+                  border: '1px solid #ddd', 
+                  borderRadius: '4px' 
                 }}
-                placeholder="Enter logo URL"
               />
-            </div>
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: '5px',
-                color: '#555',
-                fontWeight: '500'
-              }}>Form Name:</label>
-              <input
-                type="text"
-                value={formMetadata.name}
-                onChange={(e) => setFormMetadata({ ...formMetadata, name: e.target.value })}
+              <button 
+                onClick={handleCopyUrl}
                 style={{ 
-                  width: '100%', 
-                  padding: '8px',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                  color: '#333',
-                  backgroundColor: '#ffffff',
-                  fontSize: '14px'
-                }}
-                placeholder="Enter form name"
-              />
-            </div>
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: '5px',
-                color: '#555',
-                fontWeight: '500'
-              }}>Form Field:</label>
-              <input
-                type="text"
-                value={formMetadata.field}
-                onChange={(e) => setFormMetadata({ ...formMetadata, field: e.target.value })}
-                style={{ 
-                  width: '100%', 
-                  padding: '8px',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                  color: '#333',
-                  backgroundColor: '#ffffff',
-                  fontSize: '14px'
-                }}
-                placeholder="Enter form field (e.g., healthcare, education)"
-              />
-            </div>
-            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-              <button
-                onClick={() => setShowMetadataModal(false)}
-                style={{
-                  padding: '8px 16px',
+                  padding: '8px 16px', 
                   backgroundColor: '#666',
                   color: 'white',
                   border: 'none',
                   borderRadius: '4px',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.3s'
+                  cursor: 'pointer'
                 }}
-                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#555'}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#666'}
               >
-                Cancel
-              </button>
-              <button
-                onClick={handleMetadataSubmit}
-                style={{
-                  padding: '8px 16px',
-                  backgroundColor: '#4CAF50',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.3s'
-                }}
-                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#45a049'}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4CAF50'}
-              >
-                Generate URL
+                Copy
               </button>
             </div>
           </div>
+        )}
+        <div style={{ overflowY: 'auto', height: '500px', padding: '10px' }}>
+          {sections.map(section => (
+            <div key={section.id} style={{ marginBottom: '30px' }}>
+              <h2 style={{ 
+                marginBottom: '25px',
+                color: '#000',
+                fontSize: '24px',
+                fontWeight: '600',
+                borderBottom: '2px solid #ddd',
+                paddingBottom: '15px'
+              }}>{section.title}</h2>
+              {isPreview ? (
+                section.fields.map(field => renderPreviewField(field))
+              ) : (
+                section.fields.map(field => {
+                  switch (field.type) {
+                    case 'textarea':
+                      return (
+                        <div key={field.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
+                          <div style={{ flex: 1 }}>
+                            <TxtAreaLabelFieldComponent id={field.id} question={field.question} value={field.value} onQuestionChange={(id, val) => handleFieldChange(section.id, id, 'question', val)} onValueChange={(id, val) => handleFieldChange(section.id, id, 'value', val)} />
+                          </div>
+                          <button 
+                            onClick={() => handleRemoveField(section.id, field.id)}
+                            style={{ 
+                              padding: '4px 8px',
+                              backgroundColor: '#ff4444',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '4px',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      );
+                    case 'checkbox':
+                      return (
+                        <div key={field.id} style={{ width: '100%' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
+                            <div style={{ flex: 1 }}>
+                              <CheckBoxFieldLabel 
+                                id={field.id} 
+                                question={field.question} 
+                                options={field.options || []} 
+                                onQuestionChange={(id, val) => handleFieldChange(section.id, id, 'question', val)} 
+                                onOptionsChange={(id, val) => handleFieldChange(section.id, id, 'options', val)}
+                                onRemoveOption={(id, index) => handleRemoveOption(section.id, id, index)}
+                              />
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                              <button 
+                                className="button-success"
+                                onClick={() => handleAddOption(section.id, field.id)}
+                              >
+                                Add Option
+                              </button>
+                              <button 
+                                className="button-danger"
+                                onClick={() => handleRemoveField(section.id, field.id)}
+                              >
+                                Remove Question
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    case 'radio':
+                      return (
+                        <div key={field.id} style={{ width: '100%' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
+                            <div style={{ flex: 1 }}>
+                              <RadioFieldLabel 
+                                id={field.id} 
+                                question={field.question} 
+                                options={field.options || []} 
+                                onQuestionChange={(id, val) => handleFieldChange(section.id, id, 'question', val)} 
+                                onOptionsChange={(id, val) => handleFieldChange(section.id, id, 'options', val)}
+                                onRemoveOption={(id, index) => handleRemoveOption(section.id, id, index)}
+                              />
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                              <button 
+                                className="button-success"
+                                onClick={() => handleAddOption(section.id, field.id)}
+                              >
+                                Add Option
+                              </button>
+                              <button 
+                                className="button-danger"
+                                onClick={() => handleRemoveField(section.id, field.id)}
+                              >
+                                Remove Question
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    default:
+                      return null;
+                  }
+                })
+              )}
+            </div>
+          ))}
         </div>
-      )}
+        {showMetadataModal && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000
+          }}>
+            <div style={{
+              backgroundColor: 'white',
+              padding: '20px',
+              borderRadius: '8px',
+              width: '400px',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+            }}>
+              <h2 style={{ 
+                marginBottom: '20px',
+                color: '#333',
+                fontSize: '24px'
+              }}>Form Details</h2>
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ 
+                  display: 'block', 
+                  marginBottom: '5px',
+                  color: '#555',
+                  fontWeight: '500'
+                }}>Company Logo URL:</label>
+                <input
+                  type="text"
+                  value={formMetadata.logo}
+                  onChange={(e) => setFormMetadata({ ...formMetadata, logo: e.target.value })}
+                  style={{ 
+                    width: '100%', 
+                    padding: '8px',
+                    border: '1px solid #ddd',
+                    borderRadius: '4px',
+                    color: '#333',
+                    backgroundColor: '#ffffff',
+                    fontSize: '14px'
+                  }}
+                  placeholder="Enter logo URL"
+                />
+              </div>
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ 
+                  display: 'block', 
+                  marginBottom: '5px',
+                  color: '#555',
+                  fontWeight: '500'
+                }}>Form Name:</label>
+                <input
+                  type="text"
+                  value={formMetadata.name}
+                  onChange={(e) => setFormMetadata({ ...formMetadata, name: e.target.value })}
+                  style={{ 
+                    width: '100%', 
+                    padding: '8px',
+                    border: '1px solid #ddd',
+                    borderRadius: '4px',
+                    color: '#333',
+                    backgroundColor: '#ffffff',
+                    fontSize: '14px'
+                  }}
+                  placeholder="Enter form name"
+                />
+              </div>
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ 
+                  display: 'block', 
+                  marginBottom: '5px',
+                  color: '#555',
+                  fontWeight: '500'
+                }}>Form Field:</label>
+                <input
+                  type="text"
+                  value={formMetadata.field}
+                  onChange={(e) => setFormMetadata({ ...formMetadata, field: e.target.value })}
+                  style={{ 
+                    width: '100%', 
+                    padding: '8px',
+                    border: '1px solid #ddd',
+                    borderRadius: '4px',
+                    color: '#333',
+                    backgroundColor: '#ffffff',
+                    fontSize: '14px'
+                  }}
+                  placeholder="Enter form field (e.g., healthcare, education)"
+                />
+              </div>
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                <button
+                  onClick={() => setShowMetadataModal(false)}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: '#666',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    transition: 'background-color 0.3s'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#555'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#666'}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleMetadataSubmit}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: '#4CAF50',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    transition: 'background-color 0.3s'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#45a049'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4CAF50'}
+                >
+                  Generate URL
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
