@@ -1,13 +1,17 @@
-import './App.css'
-import DisplayFormComponents from './Components/DisplayFormComponents'
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import DisplayFormComponents from './Components/DisplayFormComponents';
+import GeneratedForm from './Components/GeneratedForm';
 
 function App() {
-
   return (
-    <>
-      <DisplayFormComponents />
-    </>
-  )
+    <Router>
+      <Routes>
+        <Route path="/" element={<DisplayFormComponents />} />
+        <Route path="/form" element={<GeneratedForm />} />
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;
