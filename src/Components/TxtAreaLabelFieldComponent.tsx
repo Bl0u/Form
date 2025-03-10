@@ -21,6 +21,15 @@ function TxtAreaLabelFieldComponent({ id, question, value, onQuestionChange, onV
       <textarea
         value={value}
         onChange={(e) => onValueChange(id, e.target.value)}
+        style={{
+          width: '70%',
+          minHeight: '80px',
+          padding: '12px',
+          border: '1px solid #ddd',
+          borderRadius: '6px',
+          fontSize: '14px',
+          resize: 'vertical'
+        }}
       />
     </div>
   );

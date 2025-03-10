@@ -17,11 +17,11 @@ function ThankYouPage() {
       padding: '20px'
     }}>
       <div style={{
-        backgroundColor: 'white',
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
         padding: '60px',
         borderRadius: '12px',
         boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-        backdropFilter: 'blur(10px)',
+        backdropFilter: 'blur(8px)',
         border: '1px solid rgba(255,255,255,0.2)',
         textAlign: 'center',
         maxWidth: '600px',
@@ -29,7 +29,7 @@ function ThankYouPage() {
       }}>
         <h1 style={{
           fontSize: '36px',
-          color: '#333',
+          color: 'white',
           marginBottom: '20px',
           fontWeight: '600'
         }}>
@@ -37,7 +37,7 @@ function ThankYouPage() {
         </h1>
         <p style={{
           fontSize: '18px',
-          color: '#666',
+          color: 'rgba(255, 255, 255, 0.9)',
           marginBottom: '40px',
           lineHeight: '1.6'
         }}>

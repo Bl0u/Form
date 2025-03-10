@@ -18,7 +18,7 @@ interface Field {
   id: string;
   type: 'textarea' | 'radio' | 'checkbox';
   question: string;
-  value: string;
+  value: string | string[];
   options?: string[];
 }
 
@@ -147,7 +147,7 @@ function DisplayFormComponents() {
                   id: Date.now().toString(),
                   type,
                   question: `Question ${section.fields.length + 1}`,
-                  value: '',
+                  value: type === 'checkbox' ? [] : '',
                   options: type !== 'textarea' ? ["Option 1"] : undefined
                 },
               ],
@@ -164,7 +164,20 @@ function DisplayFormComponents() {
           ? {
               ...section,
               fields: section.fields.map(field =>
-                field.id === fieldId ? { ...field, [fieldKey]: newValue } : field
+                field.id === fieldId 
+                  ? { 
+                      ...field, 
+                      [fieldKey]: fieldKey === 'value'
+                        ? (field.type === 'checkbox'
+                            ? (Array.isArray(field.value)
+                                ? field.value.includes(newValue as string)
+                                  ? (field.value as string[]).filter(v => v !== newValue)
+                                  : [...(field.value as string[]), newValue as string]
+                                : [newValue as string])
+                            : newValue)
+                        : newValue
+                  } 
+                : field
               )
             }
           : section
@@ -252,7 +265,7 @@ function DisplayFormComponents() {
           <div key={field.id} style={{ marginBottom: '15px' }}>
             <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>{field.question}</label>
             <textarea 
-              value={field.value} 
+              value={field.value as string} 
               onChange={(e) => handleFieldChange(sections[0].id, field.id, 'value', e.target.value)}
               style={{ width: '100%', minHeight: '100px', padding: '8px' }}
             />
@@ -267,10 +280,10 @@ function DisplayFormComponents() {
                 <div key={index} style={{ marginBottom: '5px' }}>
                   <input 
                     type="checkbox" 
-                    checked={field.value === option} 
+                    checked={Array.isArray(field.value) && field.value.includes(option)}
                     onChange={() => handleFieldChange(sections[0].id, field.id, 'value', option)}
                   />
-                  <label style={{ marginLeft: '5px' }}>{option}</label>
+                  <label style={{ marginLeft: '5px', color: '#000' }}>{option}</label>
                 </div>
               ))}
             </div>
@@ -289,7 +302,7 @@ function DisplayFormComponents() {
                     checked={field.value === option} 
                     onChange={() => handleFieldChange(sections[0].id, field.id, 'value', option)}
                   />
-                  <label style={{ marginLeft: '5px' }}>{option}</label>
+                  <label style={{ marginLeft: '5px', color: '#000' }}>{option}</label>
                 </div>
               ))}
             </div>
@@ -316,11 +329,11 @@ function DisplayFormComponents() {
         width: '100%',
         maxWidth: '1200px',
         margin: '20px auto',
-        backgroundColor: 'white',
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
         padding: '40px',
         borderRadius: '12px',
         boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-        backdropFilter: 'blur(10px)',
+        backdropFilter: 'blur(8px)',
         border: '1px solid rgba(255,255,255,0.2)'
       }}>
         <div style={{ 
@@ -394,12 +407,14 @@ function DisplayFormComponents() {
         {generatedUrl && (
           <div style={{ 
             marginBottom: '15px', 
-            padding: '10px', 
-            backgroundColor: '#f5f5f5', 
-            borderRadius: '4px',
-            wordBreak: 'break-all'
+            padding: '15px', 
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            borderRadius: '8px',
+            wordBreak: 'break-all',
+            backdropFilter: 'blur(8px)',
+            border: '1px solid rgba(255,255,255,0.2)'
           }}>
-            <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Shareable URL:</div>
+            <div style={{ marginBottom: '5px', fontWeight: 'bold', color: 'white' }}>Shareable URL:</div>
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
               <input 
                 type="text" 
@@ -408,19 +423,28 @@ function DisplayFormComponents() {
                 style={{ 
                   flex: 1, 
                   padding: '8px', 
-                  border: '1px solid #ddd', 
-                  borderRadius: '4px' 
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: '4px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  color: 'white'
                 }}
               />
               <button 
                 onClick={handleCopyUrl}
                 style={{ 
                   padding: '8px 16px', 
-                  backgroundColor: '#666',
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
                   color: 'white',
-                  border: 'none',
+                  border: '1px solid rgba(255,255,255,0.2)',
                   borderRadius: '4px',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
                 }}
               >
                 Copy
@@ -433,10 +457,10 @@ function DisplayFormComponents() {
             <div key={section.id} style={{ marginBottom: '30px' }}>
               <h2 style={{ 
                 marginBottom: '25px',
-                color: '#000',
+                color: 'white',
                 fontSize: '24px',
                 fontWeight: '600',
-                borderBottom: '2px solid #ddd',
+                borderBottom: '1px solid rgba(255,255,255,0.2)',
                 paddingBottom: '15px'
               }}>{section.title}</h2>
               {isPreview ? (
@@ -448,7 +472,7 @@ function DisplayFormComponents() {
                       return (
                         <div key={field.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
                           <div style={{ flex: 1 }}>
-                            <TxtAreaLabelFieldComponent id={field.id} question={field.question} value={field.value} onQuestionChange={(id, val) => handleFieldChange(section.id, id, 'question', val)} onValueChange={(id, val) => handleFieldChange(section.id, id, 'value', val)} />
+                            <TxtAreaLabelFieldComponent id={field.id} question={field.question} value={field.value as string} onQuestionChange={(id, val) => handleFieldChange(section.id, id, 'question', val)} onValueChange={(id, val) => handleFieldChange(section.id, id, 'value', val)} />
                           </div>
                           <button 
                             onClick={() => handleRemoveField(section.id, field.id)}

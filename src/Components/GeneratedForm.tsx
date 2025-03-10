@@ -26,11 +26,15 @@ interface FormData {
   sections: Section[];
 }
 
+interface FormValues {
+  [key: string]: string | string[];
+}
+
 function GeneratedForm() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState<FormData | null>(null);
-  const [formValues, setFormValues] = useState<Record<string, string>>({});
+  const [formData, setFormData] = useState<{ metadata: FormMetadata; sections: Section[] } | null>(null);
+  const [formValues, setFormValues] = useState<FormValues>({});
 
   useEffect(() => {
     const data = searchParams.get('data');
@@ -53,7 +57,25 @@ function GeneratedForm() {
   };
 
   const handleFieldChange = (fieldId: string, value: string) => {
-    setFormValues(prev => ({ ...prev, [fieldId]: value }));
+    if (!formData) return;
+
+    setFormValues(prev => {
+      const field = formData.sections
+        .flatMap(section => section.fields)
+        .find(f => f.id === fieldId);
+
+      if (!field) return prev;
+
+      if (field.type === 'checkbox') {
+        const currentValues = Array.isArray(prev[fieldId]) ? prev[fieldId] as string[] : [];
+        const newValues = currentValues.includes(value)
+          ? currentValues.filter(v => v !== value)
+          : [...currentValues, value];
+        return { ...prev, [fieldId]: newValues };
+      }
+
+      return { ...prev, [fieldId]: value };
+    });
   };
 
   if (!formData) {
@@ -172,16 +194,14 @@ function GeneratedForm() {
                     />
                   )}
 
-                  {field.type === 'radio' && (
+                  {field.type === 'checkbox' && (
                     <div style={{ marginLeft: '20px' }}>
                       {field.options?.map((option, index) => (
                         <div key={index} style={{ marginBottom: '12px' }}>
                           <input
-                            type="radio"
-                            name={field.id}
-                            value={option}
-                            checked={formValues[field.id] === option}
-                            onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                            type="checkbox"
+                            checked={Array.isArray(formValues[field.id]) && formValues[field.id].includes(option)}
+                            onChange={() => handleFieldChange(field.id, option)}
                             style={{ marginRight: '10px' }}
                           />
                           <label style={{ color: '#000', fontSize: '16px' }}>{option}</label>
@@ -190,12 +210,14 @@ function GeneratedForm() {
                     </div>
                   )}
 
-                  {field.type === 'checkbox' && (
+                  {field.type === 'radio' && (
                     <div style={{ marginLeft: '20px' }}>
                       {field.options?.map((option, index) => (
                         <div key={index} style={{ marginBottom: '12px' }}>
                           <input
-                            type="checkbox"
+                            type="radio"
+                            name={field.id}
+                            value={option}
                             checked={formValues[field.id] === option}
                             onChange={(e) => handleFieldChange(field.id, e.target.value)}
                             style={{ marginRight: '10px' }}
