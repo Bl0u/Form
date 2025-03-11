@@ -7,7 +7,8 @@ import TxtAreaLabelFieldComponent from './TxtAreaLabelFieldComponent';
 import CheckBoxFieldLabel from './CheckBoxFieldLabel';
 import RadioFieldLabel from './RadioFieldLabel';
 import AskAi from './AskAi';
-
+import ResponsesBtn from './ResponsesBtn';
+import { useNavigate } from 'react-router-dom';     
 interface FormMetadata {
   logo: string;
   name: string;
@@ -39,7 +40,7 @@ function DisplayFormComponents() {
     name: '',
     field: ''
   });
-
+  const navigate = useNavigate();
   const handleAiRequest = async (message: string) => {
     try {
       const response = await fetch(import.meta.env.VITE_API_URL, {
@@ -344,6 +345,7 @@ function DisplayFormComponents() {
         }}>
           {!isPreview && (
             <>
+              <ResponsesBtn onClick={() => navigate('/Responses')} />
               <TxtArea handleClick={() => handleAddField('textarea')} />
               <RadioArea handleClick={() => handleAddField('radio')} />
               <Checkbox handleClick={() => handleAddField('checkbox')} />
