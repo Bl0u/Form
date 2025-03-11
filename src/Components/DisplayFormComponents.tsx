@@ -84,8 +84,14 @@ function DisplayFormComponents() {
       });
 
       const data = await response.json();
+      console.log(data);
+      // ? is used so to safely access the object,without throwing error if it's undefined
       let aiText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      console.log(aiText);
+      // just in case response held  (/```json|```/, it gets removed anyways before computations
       aiText = aiText.replace(/```json|```/g, "").trim();
+      console.log(aiText);
+      
 
       let parsed;
       try {
@@ -94,7 +100,8 @@ function DisplayFormComponents() {
         console.error("Failed to parse AI response:", parseError);
         parsed = { sectionName: "AI Generated Section", fields: [] };
       }
-
+      console.log(parsed);
+      
       if (Array.isArray(parsed.fields)) {
         const aiSection: Section = {
           id: Date.now().toString(),

@@ -12,7 +12,7 @@ export default function Responses() {
   const [filteredEmails, setFilteredEmails] = useState<EmailItem[]>([]); // Ensures state starts as an array
 
   useEffect(() => {
-    axios.get('http://localhost/PHP/Responses.php') // Ensure path is correct
+    axios.get('http://localhost/PHP/Responses.php') 
       .then((response) => {
         if (Array.isArray(response.data)) {
           setEmails(response.data);
