@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import UserResponse from './UserResponse';
 import SearchForUserResponseBtn from './SearchForUserResponseBtn';
 
@@ -7,21 +8,31 @@ interface EmailItem {
 }
 
 export default function Responses() {
-  const emails: EmailItem[] = [
-    { email: 'john@example.com' },
-    { email: 'jane@example.com' },
-    { email: 'mike@example.com' },
-  ];
+  const [emails, setEmails] = useState<EmailItem[]>([]); // Ensures state starts as an array
+  const [filteredEmails, setFilteredEmails] = useState<EmailItem[]>([]); // Ensures state starts as an array
 
-  const [filteredEmails, setFilteredEmails] = useState<EmailItem[]>(emails);
-
-  const handleClick = (email: string) => {
-    console.log('Selected:', email);
-  };
+  useEffect(() => {
+    axios.get('http://localhost/PHP/Responses.php') // Ensure path is correct
+      .then((response) => {
+        if (Array.isArray(response.data)) {
+          setEmails(response.data);
+          setFilteredEmails(response.data);
+        } else {
+          console.error('Invalid JSON response:', response.data);
+          setEmails([]);
+          setFilteredEmails([]);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching emails:", error);
+        setEmails([]);
+        setFilteredEmails([]);
+      });
+  }, []);
 
   const handleSearch = (query: string) => {
-    if (query.trim() === '') {
-      setFilteredEmails(emails);
+    if (!query.trim()) {
+      setFilteredEmails(emails); // Reset when input is empty
     } else {
       setFilteredEmails(
         emails.filter((emailItem) =>
@@ -29,6 +40,10 @@ export default function Responses() {
         )
       );
     }
+  };
+
+  const handleClick = (email: string) => {
+    console.log('Selected:', email);
   };
 
   return (
@@ -55,15 +70,12 @@ export default function Responses() {
       >
         <SearchForUserResponseBtn onSearch={handleSearch} />
 
-        {filteredEmails.map((emailItem, index) => (
-          <UserResponse
-            key={index}
-            user={emailItem.email}
-            handleClick={handleClick}
-          />
-        ))}
-
-        {filteredEmails.length === 0 && (
+        {/* ✅ Ensure filteredEmails is always an array */}
+        {Array.isArray(filteredEmails) && filteredEmails.length > 0 ? (
+          filteredEmails.map((emailItem, index) => (
+            <UserResponse key={index} user={emailItem.email} handleClick={handleClick} />
+          ))
+        ) : (
           <p style={{ textAlign: 'center', color: '#777', marginTop: '10px' }}>
             No emails found.
           </p>
