@@ -9,6 +9,7 @@ import RadioFieldLabel from './RadioFieldLabel';
 import AskAi from './AskAi';
 import ResponsesBtn from './ResponsesBtn';
 import { useNavigate } from 'react-router-dom';     
+
 interface FormMetadata {
   logo: string;
   name: string;
@@ -40,7 +41,10 @@ function DisplayFormComponents() {
     name: '',
     field: ''
   });
+
+  
   const navigate = useNavigate();
+
   const handleAiRequest = async (message: string) => {
     try {
       const response = await fetch(import.meta.env.VITE_API_URL, {
@@ -85,13 +89,10 @@ function DisplayFormComponents() {
 
       const data = await response.json();
       console.log(data);
-      // ? is used so to safely access the object,without throwing error if it's undefined
       let aiText = data.candidates?.[0]?.content?.parts?.[0]?.text;
       console.log(aiText);
-      // just in case response held  (/```json|```/, it gets removed anyways before computations
       aiText = aiText.replace(/```json|```/g, "").trim();
       console.log(aiText);
-      
 
       let parsed;
       try {
@@ -100,19 +101,20 @@ function DisplayFormComponents() {
         console.error("Failed to parse AI response:", parseError);
         parsed = { sectionName: "AI Generated Section", fields: [] };
       }
-      console.log(parsed);
-      
+
       if (Array.isArray(parsed.fields)) {
         const aiSection: Section = {
           id: Date.now().toString(),
           title: parsed.sectionName || "AI Generated Section",
-          fields: parsed.fields.map((field: { type: 'textarea' | 'radio' | 'checkbox'; question: string; options?: string[] }, index: number) => ({
-            id: `${Date.now()}-${index}`,
-            type: field.type,
-            question: field.question,
-            value: "",
-            options: field.options || []
-          }))
+          fields: parsed.fields.map(
+            (field: { type: 'textarea' | 'radio' | 'checkbox'; question: string; options?: string[] }, index: number) => ({
+              id: `${Date.now()}-${index}`,
+              type: field.type,
+              question: field.question,
+              value: "",
+              options: field.options || []
+            })
+          )
         };
 
         setSections(prev => [...prev, aiSection]);
@@ -165,16 +167,21 @@ function DisplayFormComponents() {
     );
   };
 
-  const handleFieldChange = (sectionId: string, fieldId: string, fieldKey: keyof Field, newValue: string | string[]) => {
+  const handleFieldChange = (
+    sectionId: string,
+    fieldId: string,
+    fieldKey: keyof Field,
+    newValue: string | string[]
+  ) => {
     setSections(prevSections =>
       prevSections.map(section =>
         section.id === sectionId
           ? {
               ...section,
               fields: section.fields.map(field =>
-                field.id === fieldId 
-                  ? { 
-                      ...field, 
+                field.id === fieldId
+                  ? {
+                      ...field,
                       [fieldKey]: fieldKey === 'value'
                         ? (field.type === 'checkbox'
                             ? (Array.isArray(field.value)
@@ -184,8 +191,8 @@ function DisplayFormComponents() {
                                 : [newValue as string])
                             : newValue)
                         : newValue
-                  } 
-                : field
+                    }
+                  : field
               )
             }
           : section
@@ -266,84 +273,153 @@ function DisplayFormComponents() {
     setGeneratedUrl(null);
   };
 
+  
   const renderPreviewField = (field: Field) => {
+    const questionContainerStyle = {
+      marginBottom: '15px',
+      backgroundColor: 'rgba(0, 0, 0, 0.3)', // 30% transparent black
+      padding: '15px',
+      borderRadius: '8px',
+      color: '#fff'
+    };
+  
+    const labelStyle = {
+      display: 'block',
+      marginBottom: '10px',
+      fontWeight: 'bold',
+      color: '#fff'
+    };
+  
     switch (field.type) {
       case 'textarea':
         return (
-          <div key={field.id} style={{ marginBottom: '15px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>{field.question}</label>
-            <textarea 
-              value={field.value as string} 
-              onChange={(e) => handleFieldChange(sections[0].id, field.id, 'value', e.target.value)}
-              style={{ width: '100%', minHeight: '100px', padding: '8px' }}
+          <div key={field.id} style={questionContainerStyle}>
+            <label style={labelStyle}>
+              {field.question}
+            </label>
+            <textarea
+              value={field.value as string}
+              onChange={(e) =>
+                handleFieldChange(
+                  sections[0].id,
+                  field.id,
+                  'value',
+                  e.target.value
+                )
+              }
+              style={{
+                width: '100%',
+                minHeight: '100px',
+                padding: '8px',
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                border: 'none',
+                borderRadius: '4px'
+              }}
             />
           </div>
         );
+  
       case 'checkbox':
         return (
-          <div key={field.id} style={{ marginBottom: '15px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>{field.question}</label>
+          <div key={field.id} style={questionContainerStyle}>
+            <label style={labelStyle}>
+              {field.question}
+            </label>
             <div style={{ marginLeft: '20px' }}>
               {field.options?.map((option, index) => (
                 <div key={index} style={{ marginBottom: '5px' }}>
-                  <input 
-                    type="checkbox" 
-                    checked={Array.isArray(field.value) && field.value.includes(option)}
-                    onChange={() => handleFieldChange(sections[0].id, field.id, 'value', option)}
+                  <input
+                    type="checkbox"
+                    checked={
+                      Array.isArray(field.value) && field.value.includes(option)
+                    }
+                    onChange={() =>
+                      handleFieldChange(
+                        sections[0].id,
+                        field.id,
+                        'value',
+                        option
+                      )
+                    }
                   />
-                  <label style={{ marginLeft: '5px', color: '#000' }}>{option}</label>
+                  <label style={{ marginLeft: '5px', color: '#fff' }}>
+                    {option}
+                  </label>
                 </div>
               ))}
             </div>
           </div>
         );
+  
       case 'radio':
         return (
-          <div key={field.id} style={{ marginBottom: '15px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>{field.question}</label>
+          <div key={field.id} style={questionContainerStyle}>
+            <label style={labelStyle}>
+              {field.question}
+            </label>
             <div style={{ marginLeft: '20px' }}>
               {field.options?.map((option, index) => (
                 <div key={index} style={{ marginBottom: '5px' }}>
-                  <input 
-                    type="radio" 
-                    name={field.id} 
-                    checked={field.value === option} 
-                    onChange={() => handleFieldChange(sections[0].id, field.id, 'value', option)}
+                  <input
+                    type="radio"
+                    name={field.id}
+                    checked={field.value === option}
+                    onChange={() =>
+                      handleFieldChange(
+                        sections[0].id,
+                        field.id,
+                        'value',
+                        option
+                      )
+                    }
                   />
-                  <label style={{ marginLeft: '5px', color: '#000' }}>{option}</label>
+                  <label style={{ marginLeft: '5px', color: '#fff' }}>
+                    {option}
+                  </label>
                 </div>
               ))}
             </div>
           </div>
         );
+  
       default:
         return null;
     }
   };
 
+
+  
   return (
-    <div style={{
-      minHeight: '100vh',
-      width: '100vw',
-      background: 'linear-gradient(-45deg, #2193b0, #6dd5ed, #2193b0, #6dd5ed)',
-      backgroundSize: '400% 400%',
-      animation: 'gradient 15s ease infinite',
-      padding: '20px',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'flex-start'
-    }}>
-      <div style={{
-        width: '100%',
-        maxWidth: '1200px',
-        margin: '20px auto',
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-        padding: '40px',
-        borderRadius: '12px',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-        backdropFilter: 'blur(8px)',
-        border: '1px solid rgba(255,255,255,0.2)'
-      }}>
+    // Outer container: make background transparent
+    <div
+      style={{
+        minHeight: '100vh',
+        width: '100vw',
+        // Remove the gradient background, or explicitly set to 'transparent'
+        background: 'transparent',
+        padding: '20px',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'flex-start'
+      }}
+    >
+      {/* Main content container: also remove any color or partial transparency */}
+      <div
+        style={{
+          width: '100%',
+          maxWidth: '1200px',
+          margin: '20px auto',
+          // If you want it entirely see-through, set this to transparent:
+          padding: '40px',
+          borderRadius: '12px',
+          // You can keep the boxShadow or remove it:
+          boxShadow: 'none',
+          // If you want to remove the blur effect, remove or comment out the backdropFilter line:
+          backdropFilter: 'none',
+          // Remove or modify the border:
+          border: 'none'
+        }}
+      >
         <div style={{ 
           display: 'flex', 
           justifyContent: 'flex-end', 
@@ -356,23 +432,25 @@ function DisplayFormComponents() {
               <TxtArea handleClick={() => handleAddField('textarea')} />
               <RadioArea handleClick={() => handleAddField('radio')} />
               <Checkbox handleClick={() => handleAddField('checkbox')} />
-              <CategorizationBtn handleClick={handleStartSection} handleEnd={() => setCurrentSection(null)} isCategorizing={!!currentSection} />
+              <CategorizationBtn 
+                handleClick={handleStartSection} 
+                handleEnd={() => setCurrentSection(null)} 
+                isCategorizing={!!currentSection} 
+              />
               <AskAi onRequest={handleAiRequest} />
             </>
           )}
           <button 
             onClick={() => setIsPreview(!isPreview)}
-            style={{ 
+            style={{
               padding: '12px 24px', 
-              backgroundColor: isPreview ? '#ff4444' : '#4CAF50',
               color: 'white',
               border: 'none',
               borderRadius: '6px',
               fontSize: '16px',
               fontWeight: '600',
               cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              transition: 'all 0.3s ease'
             }}
             onMouseOver={(e) => {
               e.currentTarget.style.transform = 'translateY(-2px)';
@@ -397,8 +475,7 @@ function DisplayFormComponents() {
                 fontSize: '16px',
                 fontWeight: '600',
                 cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                transition: 'all 0.3s ease'
               }}
               onMouseOver={(e) => {
                 e.currentTarget.style.transform = 'translateY(-2px)';
@@ -416,14 +493,16 @@ function DisplayFormComponents() {
         {generatedUrl && (
           <div style={{ 
             marginBottom: '15px', 
-            padding: '15px', 
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            padding: '15px',
+            // Make this area transparent, or keep a subtle style if you prefer
+            backgroundColor: 'transparent',
             borderRadius: '8px',
             wordBreak: 'break-all',
-            backdropFilter: 'blur(8px)',
+            // Remove the backdropFilter:
+            backdropFilter: 'none',
             border: '1px solid rgba(255,255,255,0.2)'
           }}>
-            <div style={{ marginBottom: '5px', fontWeight: 'bold', color: 'white' }}>Shareable URL:</div>
+            <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Shareable URL:</div>
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
               <input 
                 type="text" 
@@ -431,29 +510,16 @@ function DisplayFormComponents() {
                 readOnly 
                 style={{ 
                   flex: 1, 
-                  padding: '8px', 
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: '4px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  color: 'white'
+                  padding: '8px'
                 }}
               />
               <button 
                 onClick={handleCopyUrl}
                 style={{ 
                   padding: '8px 16px', 
-                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                  color: 'white',
-                  border: '1px solid rgba(255,255,255,0.2)',
                   borderRadius: '4px',
                   cursor: 'pointer',
                   transition: 'all 0.3s ease'
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
                 }}
               >
                 Copy
@@ -466,12 +532,11 @@ function DisplayFormComponents() {
             <div key={section.id} style={{ marginBottom: '30px' }}>
               <h2 style={{ 
                 marginBottom: '25px',
-                color: 'white',
                 fontSize: '24px',
-                fontWeight: '600',
-                borderBottom: '1px solid rgba(255,255,255,0.2)',
-                paddingBottom: '15px'
-              }}>{section.title}</h2>
+                fontWeight: '600'
+              }}>
+                {section.title}
+              </h2>
               {isPreview ? (
                 section.fields.map(field => renderPreviewField(field))
               ) : (
@@ -479,9 +544,18 @@ function DisplayFormComponents() {
                   switch (field.type) {
                     case 'textarea':
                       return (
-                        <div key={field.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
+                        <div 
+                          key={field.id} 
+                          style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}
+                        >
                           <div style={{ flex: 1 }}>
-                            <TxtAreaLabelFieldComponent id={field.id} question={field.question} value={field.value as string} onQuestionChange={(id, val) => handleFieldChange(section.id, id, 'question', val)} onValueChange={(id, val) => handleFieldChange(section.id, id, 'value', val)} />
+                            <TxtAreaLabelFieldComponent
+                              id={field.id}
+                              question={field.question}
+                              value={field.value as string}
+                              onQuestionChange={(id, val) => handleFieldChange(section.id, id, 'question', val)}
+                              onValueChange={(id, val) => handleFieldChange(section.id, id, 'value', val)}
+                            />
                           </div>
                           <button 
                             onClick={() => handleRemoveField(section.id, field.id)}

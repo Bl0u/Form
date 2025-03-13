@@ -4,6 +4,8 @@ import DisplayFormComponents from './Components/DisplayFormComponents';
 import GeneratedForm from './Components/GeneratedForm';
 import ThankYouPage from './Components/ThankYouPage';
 import Responses from './Components/Responses';
+import './App.css'; // Ensure this is imported
+
 
 function App() {
   return (
